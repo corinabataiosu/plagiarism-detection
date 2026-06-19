@@ -1,0 +1,27 @@
+graph LR
+    classDef condNode fill:#D9DDF0,stroke:#4F5DD1,stroke-width:2px,color:#0515AB;
+    classDef pyNode fill:#EAECEE,stroke:#4F5DD1,stroke-width:2px,color:#0515AB;
+    classDef gpuNode fill:#7F88D4,stroke:#2537CF,stroke-width:2px,color:#FFFFFF;
+    classDef finalNode fill:#4F5DD1,stroke:#0515AB,stroke-width:2px,color:#FFFFFF;
+
+    START(["Input: Document<br> suspect și sursa"]):::pyNode --> L1["Analiză lexicală C++ <br> Generare hash-uri N-grame"]:::pyNode
+    
+    L1 --> C1{"Frecventa N-gram <br> > MAX_OCC(15)?"}:::condNode
+    
+    C1 -- Da --> D1["Eliminare zgomot lingvistic <br> Fără plagiat"]:::condNode
+    C1 -- Nu --> L2["Selectie ancore lexicale"]:::pyNode
+    
+    L2 --> S1["Extragere context <br> FRAGMENT_WINDOW = 300"]:::pyNode
+    S1 --> S2["Procesare loturi SBERT <br> paraphrase-multilingual-mpnet BATCH_SIZE = 1024"]:::gpuNode
+    
+    S2 --> C2{"Similaritate cosinus <br> > SBERT_THRESHOLD (0.60)?"}:::condNode
+    
+    C2 -- Nu --> D2["Eliminare fals pozitiv lexical <br> Fără plagiat"]:::condNode
+    C2 -- Da --> S3["Validare semantică"]:::pyNode
+    
+    S3 --> Dbs["Algoritm clusterizare DBSCAN"]:::pyNode
+    
+    Dbs --> C3{"distanta > EPS (5000) <br> SAU <br> puncte < MIN_SAMPLE (2)?"}:::condNode
+    
+    C3 -- Da --> D3["Eliminare puncte izolate (etichetă -1) <br> Fără plagiat"]:::condNode
+    C3 -- Nu --> FINAL(("PLAGIAT DETECTAT")):::finalNode

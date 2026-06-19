@@ -1,0 +1,58 @@
+flowchart TD
+    classDef cppNode fill:#D9DDF0,stroke:#4F5DD1,stroke-width:2px,color:#0515AB;
+    classDef pyNode fill:#EAECEE,stroke:#4F5DD1,stroke-width:2px,color:#0515AB;
+    classDef gpuNode fill:#7F88D4,stroke:#2537CF,stroke-width:2px,color:#FFFFFF;
+    classDef finalNode fill:#4F5DD1,stroke:#0515AB,stroke-width:2px,color:#FFFFFF;
+
+    subgraph Etapa1 [1. Încărcarea și tokenizarea datelor]
+        direction LR
+        A1["Instanțiere clasa Document<br/>"]:::pyNode
+        A2["Trimitere text brut<br/>"]:::pyNode
+        
+        A1 --> A2
+    end
+
+    subgraph Etapa2 [2. Etapa de aliniere lexicală]
+        direction LR
+        A3["Normalizare rapidă C++<br/>(alfanumeric, lowercase)"]:::cppNode
+        B1["Creare ferestre de 4 <br/>cuvinte și hashing FNV-1a"]:::cppNode
+        B2["Filtrare zgomot<br/>(exclude N-grame > 15 ori)"]:::cppNode
+        B3["Interclasare liniară<br/> și extragere coordonate"]:::cppNode
+        
+        A3 --> B1 --> B2 --> B3
+    end
+
+    subgraph Etapa3 [3. Reducerea densității prin compartimentare]
+        direction LR
+        C1["Evaluare matrice ancore (MAX_ANCHORS = 1000)"]:::pyNode
+        C2["Divizare logică în<br/>intervale (buckets)"]:::pyNode
+        C3["Păstrare ancoră unică<br/>reprezentativă per interval"]:::pyNode
+        D1["Extragere context <br/>pentru ancore"]:::pyNode
+        
+        C1 --> C2 --> C3 --> D1
+    end
+
+    subgraph Etapa4 [4. Verificarea semantică cu rețele neuronale]
+        direction LR  
+        D2[("Batch Encoding<br/>model SBERT <br/>paraphrase-multilingual-mpnet-base-v2")]:::gpuNode
+        D3["Similaritate cosinus<br/> (SBERT_THRESHOLD = 0.60)"]:::gpuNode
+        D2 --> D3
+    end
+
+    subgraph Etapa5 [5. Clusterizarea densă și exportul XML]
+        direction LR
+        E1["Clusterizare folosind DBSCAN (EPS = 10000 și MIN_SAMPLE = 3)"]:::finalNode
+        E2["Generare dinamică<br/>cod XML PAN"]:::finalNode    
+        E1 --> E2
+    end
+
+    Etapa1 --> Etapa2
+    Etapa2 --> Etapa3
+    Etapa3 --> Etapa4
+    Etapa4 --> Etapa5
+
+    style Etapa1 fill:#F2F4F4,stroke:#7F88D4,stroke-width:2px,stroke-dasharray: 5 5
+    style Etapa2 fill:#F2F4F4,stroke:#4F5DD1,stroke-width:2px,stroke-dasharray: 5 5
+    style Etapa3 fill:#F2F4F4,stroke:#4F5DD1,stroke-width:2px,stroke-dasharray: 5 5
+    style Etapa4 fill:#F2F4F4,stroke:#2537CF,stroke-width:2px,stroke-dasharray: 5 5
+    style Etapa5 fill:#F2F4F4,stroke:#0515AB,stroke-width:2px,stroke-dasharray: 5 5
