@@ -41,13 +41,14 @@ A lightweight *Gradio* web interface is included for interactively exploring doc
 
 ## Project Structure
 
+```
 .
 ├── experiments/          # code used for EDA and diagrams
 │   └──  images/          # figures used in the documentation
 ├── docs/                 # full project documentation
 ├── licenta.ipynb         # main colab notebook 
 └── README.md
-
+```
 
 ## Getting Started
 
